@@ -1,53 +1,51 @@
 import * as PIXI from 'pixi.js';
 import { getDoubleDimensionArray, getRectangle } from './utility';
 import play from './play';
-import { StateType } from "./types";
+import { StateType } from './types';
 import { config, ConfigType } from './config';
 import Reel from './Reel';
 
-
 function setup(config: ConfigType) {
+
   //Create a Pixi Application
   const app = new PIXI.Application({
     width: config.SCREEN_WIDTH,
     height: config.SCREEN_HEIGHT
   });
-
-  //Add the canvas that Pixi automatically created for you to the HTML document
   document.body.appendChild(app.view);
 
   //set the game state to `play`
   let state: StateType = play;
   const allReels: Reel[] = [];
 
-  getDoubleDimensionArray(
-    config.REEL_AMOUNT,
-    config.SYMBOLS_AMOUNT + 2
-  ).forEach((reel, reelIndex) => {
-    const reelContainer = new PIXI.Container();
-    const symbols: PIXI.Graphics[] = [];
+  getDoubleDimensionArray(config.REEL_AMOUNT, config.SYMBOLS_AMOUNT + 2).forEach(
+    (reel, reelIndex) => {
+      const reelContainer = new PIXI.Container();
+      const symbols: PIXI.Graphics[] = [];
 
-    reel.forEach(symbolIndex => {
-      const rectangle = getRectangle(config);
-      const y = (symbolIndex - 1) * config.SYMBOL_HEIGHT + config.MARGIN;
-      const x = config.REEL_WIDTH * reelIndex + config.MARGIN;
-      rectangle.position.set(x, y);
+      reel.forEach(symbolIndex => {
+        const rectangle = getRectangle(config);
+        const y = (symbolIndex - 1) * config.SYMBOL_HEIGHT + config.MARGIN;
+        const x = config.REEL_WIDTH * reelIndex + config.MARGIN;
+        rectangle.position.set(x, y);
 
-      // Add rectangle to symbols array
-      reelContainer.addChild(rectangle);
-      symbols.push(rectangle);
-    });
+        // Add rectangle to symbols array
+        reelContainer.addChild(rectangle);
+        symbols.push(rectangle);
+      });
 
-    const blur = new PIXI.filters.BlurFilter();
-    blur.blurX = 0;
-    blur.blurY = 0;
-    reelContainer.filters = [blur];
+      const blur = new PIXI.filters.BlurFilter();
+      blur.blurX = 0;
+      blur.blurY = 0;
+      reelContainer.filters = [blur];
 
-    const newReel = new Reel(reelContainer, symbols, blur);
-    allReels.push(newReel);
+      const spinTime = 1 + 1 * reelIndex;
+      const newReel = new Reel(reelContainer, symbols, blur, new Date(), spinTime);
+      allReels.push(newReel);
 
-    app.stage.addChild(reelContainer);
-  });
+      app.stage.addChild(reelContainer);
+    }
+  );
 
   const viewport = new PIXI.Graphics();
   const x = config.MARGIN;

@@ -1,25 +1,27 @@
-import * as PIXI from 'pixi.js';
+// import * as PIXI from 'pixi.js';
 import { ConfigType } from './config';
 import { getRectangle } from './utility';
+import Reel from './Reel';
 
-export default (containers: PIXI.Container[], config: ConfigType) => {
+export default (allReels: Reel[], config: ConfigType) => {
   const lastY = config.VIEWPORT_HEIGHT + config.MARGIN + config.SYMBOL_HEIGHT;
 
-  containers.forEach((reelContainer: PIXI.Container, reelIndex) => {
-    console.log(reelContainer.filters)
-    // reelContainer.filters[0].blurY = 6;
+  allReels.forEach((reel: Reel, reelIndex) => {
+    reel.filter.blurY = 3 * reelIndex;
 
-    reelContainer.children.forEach(rectangle => {
+    reel.symbols.forEach(rectangle => {
       rectangle.y += 1 + 1 * reelIndex;
       if (rectangle.y >= lastY) {
         const deltaY = rectangle.y - lastY;
-        rectangle.destroy()
+
+        reel.remove(rectangle);
 
         const newRectangle = getRectangle(config);
         const y = config.MARGIN - config.SYMBOL_HEIGHT + deltaY;
         const x = config.REEL_WIDTH * reelIndex + config.MARGIN;
         newRectangle.position.set(x, y);
-        reelContainer.addChildAt(newRectangle, 0);
+
+        reel.add(newRectangle);
       }
     });
   });

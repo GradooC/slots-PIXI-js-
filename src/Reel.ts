@@ -1,16 +1,17 @@
 import * as PIXI from 'pixi.js';
 
 export default class Reel {
-  container: PIXI.Container;
-  symbols: PIXI.Graphics[];
-  filter: PIXI.filters.BlurFilter;
-  startTime: Date;
-  spinTime: number;
+  public container: PIXI.Container;
+  public symbols: PIXI.Graphics[];
+  public filter: PIXI.filters.BlurFilter;
+  public startTime: number;
+  public spinTime: number;
+  public position: number;
   constructor(
     container: PIXI.Container,
     symbols: PIXI.Graphics[],
     filter: PIXI.filters.BlurFilter,
-    startTime: Date,
+    startTime: number,
     spinTime: number
   ) {
     this.container = container;
@@ -18,6 +19,7 @@ export default class Reel {
     this.filter = filter;
     this.startTime = startTime;
     this.spinTime = spinTime;
+    this.position = 0;
   }
 
   /**

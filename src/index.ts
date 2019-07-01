@@ -6,7 +6,6 @@ import { config, ConfigType } from './config';
 import Reel from './Reel';
 
 function setup(config: ConfigType) {
-
   //Create a Pixi Application
   const app = new PIXI.Application({
     width: config.SCREEN_WIDTH,
@@ -18,16 +17,19 @@ function setup(config: ConfigType) {
   let state: StateType = play;
   const allReels: Reel[] = [];
 
-  getDoubleDimensionArray(config.REEL_AMOUNT, config.SYMBOLS_AMOUNT + 2).forEach(
+  getDoubleDimensionArray(config.REEL_AMOUNT, config.SYMBOLS_AMOUNT + 6).forEach(
     (reel, reelIndex) => {
       const reelContainer = new PIXI.Container();
+      const reelX = config.MARGIN + reelIndex * config.REEL_WIDTH;
+      const reelY = 0;
+      reelContainer.position.set(reelX, reelY);
       const symbols: PIXI.Graphics[] = [];
 
       reel.forEach(symbolIndex => {
         const rectangle = getRectangle(config);
-        const y = (symbolIndex - 1) * config.SYMBOL_HEIGHT + config.MARGIN;
-        const x = config.REEL_WIDTH * reelIndex + config.MARGIN;
-        rectangle.position.set(x, y);
+        const symbolX = 0;
+        const symbolY = symbolIndex * config.SYMBOL_HEIGHT;
+        rectangle.position.set(symbolX, symbolY);
 
         // Add rectangle to symbols array
         reelContainer.addChild(rectangle);
@@ -39,8 +41,8 @@ function setup(config: ConfigType) {
       blur.blurY = 0;
       reelContainer.filters = [blur];
 
-      const spinTime = 1 + 1 * reelIndex;
-      const newReel = new Reel(reelContainer, symbols, blur, new Date(), spinTime);
+      const spinTime = 1000 * (1 + 1 * reelIndex);
+      const newReel = new Reel(reelContainer, symbols, blur, Date.now(), spinTime);
       allReels.push(newReel);
 
       app.stage.addChild(reelContainer);
@@ -52,8 +54,26 @@ function setup(config: ConfigType) {
   const y = config.MARGIN;
   viewport
     .lineStyle(4, 0x4287f5, 1)
-    .drawRoundedRect(x, y, config.VIEWPORT_WIDTH, config.VIEWPORT_HEIGHT, 30);
+    .drawRoundedRect(x, y, config.VIEWPORT_WIDTH, config.VIEWPORT_HEIGHT, 20);
   app.stage.addChild(viewport);
+
+  const playButton = new PIXI.Graphics();
+  const radius = 50;
+  const btnX = config.SCREEN_WIDTH - radius * 2;
+  const btnY = config.SCREEN_HEIGHT - radius * 2;
+  playButton
+    .beginFill(0x9966ff)
+    .drawCircle(btnX, btnY, radius)
+    .endFill();
+  playButton.interactive = true;
+  playButton.buttonMode = true;
+  playButton.cursor = 'pointer';
+  playButton.addListener('pointerdown', () => {
+    allReels.forEach(reel => {
+      reel.startTime = Date.now()
+    })
+  });
+  app.stage.addChild(playButton);
 
   //============== For debug ==============
   // const sixtyTimes = (fn: StateType) => {

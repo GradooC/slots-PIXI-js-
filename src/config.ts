@@ -1,7 +1,7 @@
 export const config = {
   SCREEN_WIDTH: 1200,
   SCREEN_HEIGHT: 800,
-  MARGIN: 200,
+  MARGIN: 300,
   REEL_AMOUNT: 5,
   SYMBOLS_AMOUNT: 4,
   get VIEWPORT_WIDTH() {

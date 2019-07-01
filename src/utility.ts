@@ -14,7 +14,7 @@ export const getRectangle = (config: ConfigType) => {
   const height = config.SYMBOL_HEIGHT;
 
   const rectangle = new PIXI.Graphics();
-  rectangle.lineStyle(4, 0xff3300, 1).drawRoundedRect(0, 0, width, height, 30);
+  rectangle.lineStyle(4, 0xff3300, 1).drawRoundedRect(0, 0, width, height, 20);
 
   return rectangle;
 };

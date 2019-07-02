@@ -7,6 +7,7 @@ export default class Reel {
   public startTime: number;
   public spinTime: number;
   public position: number;
+  public stopTime: number;
   constructor(
     container: PIXI.Container,
     symbols: PIXI.Graphics[],
@@ -20,6 +21,7 @@ export default class Reel {
     this.startTime = startTime;
     this.spinTime = spinTime;
     this.position = 0;
+    this.stopTime = 1;
   }
 
   /**
@@ -38,5 +40,12 @@ export default class Reel {
   public remove(symbol: PIXI.Graphics) {
     symbol.destroy();
     this.symbols.pop();
+  }
+
+  /**
+   * Determines whether reel stopping or not
+   */
+  public isStopping() {
+    return Date.now() - this.startTime >= this.spinTime;
   }
 }

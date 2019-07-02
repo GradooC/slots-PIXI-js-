@@ -6,6 +6,10 @@ import { config, ConfigType } from './config';
 import Reel from './Reel';
 
 function setup(config: ConfigType) {
+  // Variables
+  let state: StateType = play;
+  const allReels: Reel[] = [];
+
   //Create a Pixi Application
   const app = new PIXI.Application({
     width: config.SCREEN_WIDTH,
@@ -14,8 +18,6 @@ function setup(config: ConfigType) {
   document.body.appendChild(app.view);
 
   //set the game state to `play`
-  let state: StateType = play;
-  const allReels: Reel[] = [];
 
   getDoubleDimensionArray(config.REEL_AMOUNT, config.SYMBOLS_AMOUNT + 6).forEach(
     (reel, reelIndex) => {
@@ -42,9 +44,9 @@ function setup(config: ConfigType) {
       reelContainer.filters = [blur];
 
       const spinTime = 1000 * (1 + 1 * reelIndex);
-      const newReel = new Reel(reelContainer, symbols, blur, Date.now(), spinTime);
-      allReels.push(newReel);
+      const newReel = new Reel(reelContainer, symbols, blur, 0, spinTime);
 
+      allReels.push(newReel);
       app.stage.addChild(reelContainer);
     }
   );
@@ -62,7 +64,7 @@ function setup(config: ConfigType) {
   const btnX = config.SCREEN_WIDTH - radius * 2;
   const btnY = config.SCREEN_HEIGHT - radius * 2;
   playButton
-    .beginFill(0x9966ff)
+    .beginFill(0x9bc781)
     .drawCircle(btnX, btnY, radius)
     .endFill();
   playButton.interactive = true;
@@ -70,8 +72,10 @@ function setup(config: ConfigType) {
   playButton.cursor = 'pointer';
   playButton.addListener('pointerdown', () => {
     allReels.forEach(reel => {
-      reel.startTime = Date.now()
-    })
+      reel.startTime = Date.now();
+      reel.position = Math.ceil(Math.random() * allReels.length);
+      reel.stopTime = null;
+    });
   });
   app.stage.addChild(playButton);
 

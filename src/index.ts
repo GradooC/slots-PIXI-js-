@@ -85,17 +85,19 @@ function setup() {
         const rectangleY = symbolIndex * config.SYMBOL_HEIGHT;
         rectangle.position.set(rectangleX, rectangleY);
         //======================== DEBUG END ========================
+
         const symbol = getRandomSprite(imgPaths, loader, config);
-        const symbolX = 0;
+        const symbolX = (config.REEL_WIDTH - symbol.width) / 2;;
         const symbolY = symbolIndex * config.SYMBOL_HEIGHT;
         symbol.position.set(symbolX, symbolY);
 
         // Add rectangle to symbols array
         reelContainer.addChild(symbol);
         symbols.push(symbol);
+        //======================== DEBUG START ======================
         reelContainer.addChild(rectangle);
         rectangles.push(rectangle)
-        // symbols.push(rectangle);
+        //======================== DEBUG END ========================
       });
 
       const blur = new PIXI.filters.BlurFilter();
@@ -118,27 +120,6 @@ function setup() {
     .lineStyle(4, 0x4287f5, 1)
     .drawRoundedRect(x, y, config.VIEWPORT_WIDTH, config.VIEWPORT_HEIGHT, 20);
   app.stage.addChild(viewport);
-
-  // Play button setup
-  // const playButton = new PIXI.Graphics();
-  // const radius = 50;
-  // const btnX = config.SCREEN_WIDTH - radius * 2;
-  // const btnY = config.SCREEN_HEIGHT - radius * 2;
-  // playButton
-  //   .beginFill(0x9bc781)
-  //   .drawCircle(btnX, btnY, radius)
-  //   .endFill();
-  // playButton.interactive = true;
-  // playButton.buttonMode = true;
-  // playButton.cursor = 'pointer';
-  // playButton.addListener('pointerdown', () => {
-  //   allReels.forEach(reel => {
-  //     reel.startTime = Date.now();
-  //     reel.position = Math.ceil(Math.random() * allReels.length);
-  //     reel.stopTime = null;
-  //   });
-  // });
-  // app.stage.addChild(playButton);
 
   // Play button setup
   const button = new PIXI.Sprite(loader.resources['assets\\img\\btn_spin_normal.png'].texture);

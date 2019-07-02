@@ -11,12 +11,18 @@ export const getDoubleDimensionArray = (outerLength: number, innerLength: number
     .fill(null)
     .map(() => new Array(innerLength).fill(null).map((el, index) => index));
 
+/**
+ * Returns sprite of the random symbol
+ * @param imgPaths Array of the paths to all images
+ * @param loader Instance of the PIXI.Loader
+ * @param config Config object
+ */
 export const getRandomSprite = (
   /*mask: PIXI.Graphics*/
 
   imgPaths: string[],
   loader: PIXI.Loader,
-  cinfig: ConfigType
+  config: ConfigType
 ): PIXI.Sprite => {
   // Make textures from symbols
   const symbolsTextures = imgPaths
@@ -32,9 +38,12 @@ export const getRandomSprite = (
   // sprite.mask = mask;
 
   // Adjusting symbol size
-  sprite.scale.x = sprite.scale.y = Math.min(config.REEL_WIDTH / sprite.width, config.SYMBOL_HEIGHT / sprite.height);
+  sprite.scale.x = sprite.scale.y = Math.min(
+    config.REEL_WIDTH / sprite.width,
+    config.SYMBOL_HEIGHT / sprite.height
+  );
   // Centering symbol inside the area;
-  sprite.x = (280 - sprite.width) / 2;
+  // sprite.x = (config.REEL_WIDTH - sprite.width) / 2;
   // sprite.y = (200 - sprite.height) / 2;
 
   return sprite;

@@ -23,7 +23,7 @@ export default (allReels: Reel[], config: ConfigType) => {
       const position = interpolation(0, reel.position * config.SYMBOL_HEIGHT, easing(phase));
       reel.container.y = position;
     } else {
-      reel.container.y += 5;
+      reel.container.y += config.SPIN_SPEED;
     }
 
     if (reel.container.y >= lastY) {

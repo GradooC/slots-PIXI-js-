@@ -42,10 +42,7 @@ export const getRandomSprite = (
     config.REEL_WIDTH / sprite.width,
     config.SYMBOL_HEIGHT / sprite.height
   );
-  // Centering symbol inside the area;
-  // sprite.x = (config.REEL_WIDTH - sprite.width) / 2;
-  // sprite.y = (200 - sprite.height) / 2;
-
+  
   return sprite;
 };
 

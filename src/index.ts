@@ -4,6 +4,7 @@ import play from './play';
 import { StateType } from './types';
 import { config, ConfigType } from './config';
 import Reel from './Reel';
+import { reelSpinSound, landingSound } from './sounds';
 
 const imgPaths = [
   'assets\\img\\slotOverlay.png',
@@ -44,18 +45,14 @@ function setup() {
   document.body.appendChild(app.view);
 
   //Background setup
-  const background = new PIXI.Sprite(
-    loader.resources['assets\\img\\winningFrameBackground.jpg'].texture
-  );
+  const backgroundTexture = loader.resources['assets\\img\\winningFrameBackground.jpg'].texture;
   const backgroundContainer = new PIXI.Container();
-  const columnAmount = Math.ceil(config.VIEWPORT_WIDTH / background.width);
-  const rowAmount = Math.ceil(config.VIEWPORT_HEIGHT / background.height);
+  const columnAmount = Math.ceil(config.VIEWPORT_WIDTH / backgroundTexture.width);
+  const rowAmount = Math.ceil(config.VIEWPORT_HEIGHT / backgroundTexture.height);
 
   getDoubleDimensionArray(columnAmount, rowAmount).forEach((arr, xIndex) => {
     arr.forEach(yIndex => {
-      const back = new PIXI.Sprite(
-        loader.resources['assets\\img\\winningFrameBackground.jpg'].texture
-      );
+      const back = new PIXI.Sprite(backgroundTexture);
       back.x = xIndex * back.width;
       back.y = yIndex * back.height;
       backgroundContainer.addChild(back);
@@ -87,7 +84,7 @@ function setup() {
         //======================== DEBUG END ========================
 
         const symbol = getRandomSprite(imgPaths, loader, config);
-        const symbolX = (config.REEL_WIDTH - symbol.width) / 2;;
+        const symbolX = (config.REEL_WIDTH - symbol.width) / 2;
         const symbolY = symbolIndex * config.SYMBOL_HEIGHT;
         symbol.position.set(symbolX, symbolY);
 
@@ -96,7 +93,7 @@ function setup() {
         symbols.push(symbol);
         //======================== DEBUG START ======================
         reelContainer.addChild(rectangle);
-        rectangles.push(rectangle)
+        rectangles.push(rectangle);
         //======================== DEBUG END ========================
       });
 
@@ -113,6 +110,7 @@ function setup() {
     }
   );
 
+  // Viewport setup
   const viewport = new PIXI.Graphics();
   const x = config.MARGIN;
   const y = config.MARGIN;
@@ -130,21 +128,43 @@ function setup() {
     config.SCREEN_HEIGHT - config.BTN_RADIUS
   );
   button.cursor = 'pointer';
+  button.addListener(
+    'mouseover',
+    () => (button.texture = loader.resources['assets\\img\\btn_spin_hover.png'].texture)
+  );
+  button.addListener(
+    'mouseout',
+    () => (button.texture = loader.resources['assets\\img\\btn_spin_normal.png'].texture)
+  );
   button.addListener('pointerdown', () => {
-    allReels.forEach(reel => {
-      reel.startTime = Date.now();
-      reel.position = Math.ceil(Math.random() * allReels.length);
-      reel.stopTime = null;
-    });
+    button.texture = loader.resources['assets\\img\\btn_spin_pressed.png'].texture
+    startPlay(allReels)
   });
   app.stage.addChild(button);
+
+  // OverLay setup
+  const overlay = new PIXI.Sprite(loader.resources['assets\\img\\slotOverlay.png'].texture);
+  overlay.position.set(config.MARGIN, config.MARGIN);
+  overlay.width = config.VIEWPORT_WIDTH;
+  overlay.height = config.VIEWPORT_HEIGHT;
+  app.stage.addChild(overlay);
+
+  const gameLoop = () => {};
 
   //Start the game loop
   app.ticker.add(
     () => {
-      // pl(app.stage);
-      play(allReels, config);
+      state(allReels, state, config);
     }
     // delta => gameLoop(delta)
   );
+}
+
+function startPlay(allReels: Reel[]) {
+  allReels.forEach(reel => {
+    reelSpinSound.play();
+    reel.startTime = Date.now();
+    reel.position = Math.ceil(Math.random() * allReels.length);
+    reel.stopTime = null;
+  });
 }

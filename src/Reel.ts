@@ -6,8 +6,9 @@ export default class Reel {
   public filter: PIXI.filters.BlurFilter;
   public startTime: number;
   public spinTime: number;
-  public position: number;
   public stopTime: number;
+  public position: number;
+  public previousPosition: number;
   //======================== DEBUG START ======================
   public rectangles: PIXI.Graphics[];
   //======================== DEBUG END ========================
@@ -30,6 +31,7 @@ export default class Reel {
     this.spinTime = spinTime;
     this.position = 0;
     this.stopTime = 1;
+    this.previousPosition = null;
   }
 
   //======================== DEBUG START ======================
@@ -66,5 +68,12 @@ export default class Reel {
    */
   public isStopping() {
     return Date.now() - this.startTime >= this.spinTime;
+  }
+
+  /**
+   * Determines whether reel stopped or not
+   */
+  public isStopped(currentPosition: number) {
+    return this.previousPosition - currentPosition === 0;
   }
 }

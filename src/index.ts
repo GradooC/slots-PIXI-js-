@@ -1,14 +1,40 @@
 import * as PIXI from 'pixi.js';
-import { getDoubleDimensionArray, getRectangle } from './utility';
+import { getDoubleDimensionArray, getRectangle, getRandomSprite } from './utility';
 import play from './play';
 import { StateType } from './types';
 import { config, ConfigType } from './config';
 import Reel from './Reel';
 
-function setup(config: ConfigType) {
+const imgPaths = [
+  'assets\\img\\slotOverlay.png',
+  'assets\\img\\winningFrameBackground.jpg',
+  'assets\\img\\btn_spin_pressed.png',
+  'assets\\img\\btn_spin_normal.png',
+  'assets\\img\\btn_spin_hover.png',
+  'assets\\img\\btn_spin_disable.png',
+  'assets\\img\\symbols\\01.png',
+  'assets\\img\\symbols\\02.png',
+  'assets\\img\\symbols\\03.png',
+  'assets\\img\\symbols\\04.png',
+  'assets\\img\\symbols\\05.png',
+  'assets\\img\\symbols\\06.png',
+  'assets\\img\\symbols\\07.png',
+  'assets\\img\\symbols\\08.png',
+  'assets\\img\\symbols\\09.png',
+  'assets\\img\\symbols\\10.png',
+  'assets\\img\\symbols\\11.png',
+  'assets\\img\\symbols\\12.png',
+  'assets\\img\\symbols\\13.png'
+];
+const loader = new PIXI.Loader();
+loader.add(imgPaths).load(setup);
+
+function setup() {
   // Variables
-  let state: StateType = play;
   const allReels: Reel[] = [];
+
+  //set the game state to `play`
+  let state: StateType = play;
 
   //Create a Pixi Application
   const app = new PIXI.Application({
@@ -17,25 +43,59 @@ function setup(config: ConfigType) {
   });
   document.body.appendChild(app.view);
 
-  //set the game state to `play`
+  //Background setup
+  const background = new PIXI.Sprite(
+    loader.resources['assets\\img\\winningFrameBackground.jpg'].texture
+  );
+  const backgroundContainer = new PIXI.Container();
+  const columnAmount = Math.ceil(config.VIEWPORT_WIDTH / background.width);
+  const rowAmount = Math.ceil(config.VIEWPORT_HEIGHT / background.height);
 
+  getDoubleDimensionArray(columnAmount, rowAmount).forEach((arr, xIndex) => {
+    arr.forEach(yIndex => {
+      const back = new PIXI.Sprite(
+        loader.resources['assets\\img\\winningFrameBackground.jpg'].texture
+      );
+      back.x = xIndex * back.width;
+      back.y = yIndex * back.height;
+      backgroundContainer.addChild(back);
+      backgroundContainer.x = config.MARGIN;
+      backgroundContainer.y = config.MARGIN;
+    });
+  });
+  app.stage.addChild(backgroundContainer);
+
+  // Reels setup
   getDoubleDimensionArray(config.REEL_AMOUNT, config.SYMBOLS_AMOUNT + 6).forEach(
     (reel, reelIndex) => {
+      const symbols: PIXI.Sprite[] = [];
+      //======================== DEBUG START ======================
+      const rectangles: PIXI.Graphics[] = [];
+      //======================== DEBUG END ========================
       const reelContainer = new PIXI.Container();
       const reelX = config.MARGIN + reelIndex * config.REEL_WIDTH;
       const reelY = 0;
       reelContainer.position.set(reelX, reelY);
-      const symbols: PIXI.Graphics[] = [];
 
+      // Populates reels by symbols
       reel.forEach(symbolIndex => {
+        //======================== DEBUG START ======================
         const rectangle = getRectangle(config);
+        const rectangleX = 0;
+        const rectangleY = symbolIndex * config.SYMBOL_HEIGHT;
+        rectangle.position.set(rectangleX, rectangleY);
+        //======================== DEBUG END ========================
+        const symbol = getRandomSprite(imgPaths, loader, config);
         const symbolX = 0;
         const symbolY = symbolIndex * config.SYMBOL_HEIGHT;
-        rectangle.position.set(symbolX, symbolY);
+        symbol.position.set(symbolX, symbolY);
 
         // Add rectangle to symbols array
+        reelContainer.addChild(symbol);
+        symbols.push(symbol);
         reelContainer.addChild(rectangle);
-        symbols.push(rectangle);
+        rectangles.push(rectangle)
+        // symbols.push(rectangle);
       });
 
       const blur = new PIXI.filters.BlurFilter();
@@ -44,7 +104,7 @@ function setup(config: ConfigType) {
       reelContainer.filters = [blur];
 
       const spinTime = 1000 * (1 + 1 * reelIndex);
-      const newReel = new Reel(reelContainer, symbols, blur, 0, spinTime);
+      const newReel = new Reel(reelContainer, symbols, rectangles, blur, 0, spinTime);
 
       allReels.push(newReel);
       app.stage.addChild(reelContainer);
@@ -59,42 +119,44 @@ function setup(config: ConfigType) {
     .drawRoundedRect(x, y, config.VIEWPORT_WIDTH, config.VIEWPORT_HEIGHT, 20);
   app.stage.addChild(viewport);
 
-  const playButton = new PIXI.Graphics();
-  const radius = 50;
-  const btnX = config.SCREEN_WIDTH - radius * 2;
-  const btnY = config.SCREEN_HEIGHT - radius * 2;
-  playButton
-    .beginFill(0x9bc781)
-    .drawCircle(btnX, btnY, radius)
-    .endFill();
-  playButton.interactive = true;
-  playButton.buttonMode = true;
-  playButton.cursor = 'pointer';
-  playButton.addListener('pointerdown', () => {
+  // Play button setup
+  // const playButton = new PIXI.Graphics();
+  // const radius = 50;
+  // const btnX = config.SCREEN_WIDTH - radius * 2;
+  // const btnY = config.SCREEN_HEIGHT - radius * 2;
+  // playButton
+  //   .beginFill(0x9bc781)
+  //   .drawCircle(btnX, btnY, radius)
+  //   .endFill();
+  // playButton.interactive = true;
+  // playButton.buttonMode = true;
+  // playButton.cursor = 'pointer';
+  // playButton.addListener('pointerdown', () => {
+  //   allReels.forEach(reel => {
+  //     reel.startTime = Date.now();
+  //     reel.position = Math.ceil(Math.random() * allReels.length);
+  //     reel.stopTime = null;
+  //   });
+  // });
+  // app.stage.addChild(playButton);
+
+  // Play button setup
+  const button = new PIXI.Sprite(loader.resources['assets\\img\\btn_spin_normal.png'].texture);
+  button.interactive = true;
+  button.width = button.height = config.BTN_RADIUS;
+  button.position.set(
+    config.SCREEN_WIDTH - config.BTN_RADIUS,
+    config.SCREEN_HEIGHT - config.BTN_RADIUS
+  );
+  button.cursor = 'pointer';
+  button.addListener('pointerdown', () => {
     allReels.forEach(reel => {
       reel.startTime = Date.now();
       reel.position = Math.ceil(Math.random() * allReels.length);
       reel.stopTime = null;
     });
   });
-  app.stage.addChild(playButton);
-
-  //============== For debug ==============
-  // const sixtyTimes = (fn: StateType) => {
-  //   let times = 5;
-  //   return (containers: PIXI.Container[]) => {
-  //     if (times === 0) return;
-  //     times--;
-  //     fn(allReels);
-  //   };
-  // };
-  // // console.log(app.stage.children.filter(child => !(child instanceof PIXI.Graphics)));
-  // const pl = sixtyTimes(play);
-  //============== For debug ==============
-
-  // const containers = app.stage.children.filter(<
-  //   (child: PIXI.DisplayObject) => child is PIXI.Container
-  // >(child => !(child instanceof PIXI.Graphics)));
+  app.stage.addChild(button);
 
   //Start the game loop
   app.ticker.add(
@@ -105,5 +167,3 @@ function setup(config: ConfigType) {
     // delta => gameLoop(delta)
   );
 }
-
-setup(config);

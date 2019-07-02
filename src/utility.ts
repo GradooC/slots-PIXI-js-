@@ -1,13 +1,44 @@
-import { ConfigType } from './config';
+import { ConfigType, config } from './config';
 import * as PIXI from 'pixi.js';
 
-export const getDoubleDimensionArray = (
-  outerLength: number,
-  innerLength: number
-): number[][] =>
+/**
+ * Produces double dimension array with specified length
+ * @param outerLength Length of the outer array
+ * @param innerLength Length of the inner array
+ */
+export const getDoubleDimensionArray = (outerLength: number, innerLength: number): number[][] =>
   new Array(outerLength)
     .fill(null)
     .map(() => new Array(innerLength).fill(null).map((el, index) => index));
+
+export const getRandomSprite = (
+  /*mask: PIXI.Graphics*/
+
+  imgPaths: string[],
+  loader: PIXI.Loader,
+  cinfig: ConfigType
+): PIXI.Sprite => {
+  // Make textures from symbols
+  const symbolsTextures = imgPaths
+    .filter(path => /.*\\symbols\\.*/.test(path))
+    .map(path => loader.resources[path].texture);
+
+  // Get random array index
+  const textureIndex = Math.floor(Math.random() * symbolsTextures.length);
+
+  // Return sprite for random texture
+  const sprite = new PIXI.Sprite(symbolsTextures[textureIndex]);
+
+  // sprite.mask = mask;
+
+  // Adjusting symbol size
+  sprite.scale.x = sprite.scale.y = Math.min(config.REEL_WIDTH / sprite.width, config.SYMBOL_HEIGHT / sprite.height);
+  // Centering symbol inside the area;
+  sprite.x = (280 - sprite.width) / 2;
+  // sprite.y = (200 - sprite.height) / 2;
+
+  return sprite;
+};
 
 export const getRectangle = (config: ConfigType) => {
   const width = config.REEL_WIDTH;

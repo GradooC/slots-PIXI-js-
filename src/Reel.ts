@@ -7,6 +7,7 @@ export default class Reel {
   public startTime: number;
   public spinTime: number;
   public stopTime: number;
+  public isStopped: boolean;
   public position: number;
   public previousPosition: number;
   //======================== DEBUG START ======================
@@ -32,6 +33,7 @@ export default class Reel {
     this.position = 0;
     this.stopTime = 1;
     this.previousPosition = null;
+    this.isStopped = false;
   }
 
   //======================== DEBUG START ======================
@@ -68,12 +70,5 @@ export default class Reel {
    */
   public isStopping() {
     return Date.now() - this.startTime >= this.spinTime;
-  }
-
-  /**
-   * Determines whether reel stopped or not
-   */
-  public isStopped(currentPosition: number) {
-    return this.previousPosition - currentPosition === 0;
   }
 }

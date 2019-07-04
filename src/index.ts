@@ -1,10 +1,12 @@
 import * as PIXI from 'pixi.js';
 import { getDoubleDimensionArray, getRectangle, getRandomSprite } from './utility';
 import play from './play';
-import { StateType } from './types';
-import { config, ConfigType } from './config';
+import { StateType, GameStageType, ConfigType } from './types';
+import { config } from './config';
 import Reel from './Reel';
 import { reelSpinSound, landingSound } from './sounds';
+
+let gameStage: GameStageType = 'end';
 
 const imgPaths = [
   'assets\\img\\slotOverlay.png',
@@ -40,9 +42,20 @@ function setup() {
   //Create a Pixi Application
   const app = new PIXI.Application({
     width: config.SCREEN_WIDTH,
-    height: config.SCREEN_HEIGHT
+    height: config.SCREEN_HEIGHT,
+    backgroundColor: 0x1099bb
   });
   document.body.appendChild(app.view);
+
+  // Viewport setup
+  const viewport = new PIXI.Graphics();
+  const x = config.MARGIN;
+  const y = config.MARGIN;
+  viewport
+    // .lineStyle(4, 0x4287f5, 1)
+    .beginFill(0x4287f5, 0.5)
+    .drawRoundedRect(x, y, config.VIEWPORT_WIDTH, config.VIEWPORT_HEIGHT, 20);
+  app.stage.addChild(viewport);
 
   //Background setup
   const backgroundTexture = loader.resources['assets\\img\\winningFrameBackground.jpg'].texture;
@@ -60,6 +73,7 @@ function setup() {
       backgroundContainer.y = config.MARGIN;
     });
   });
+  backgroundContainer.mask = viewport;
   app.stage.addChild(backgroundContainer);
 
   // Reels setup
@@ -71,7 +85,7 @@ function setup() {
       //======================== DEBUG END ========================
       const reelContainer = new PIXI.Container();
       const reelX = config.MARGIN + reelIndex * config.REEL_WIDTH;
-      const reelY = 0;
+      const reelY = config.MARGIN + config.VIEWPORT_HEIGHT - (config.SYMBOLS_AMOUNT + 6) * config.SYMBOL_HEIGHT;
       reelContainer.position.set(reelX, reelY);
 
       // Populates reels by symbols
@@ -110,24 +124,15 @@ function setup() {
     }
   );
 
-  // Viewport setup
-  const viewport = new PIXI.Graphics();
-  const x = config.MARGIN;
-  const y = config.MARGIN;
-  viewport
-    .lineStyle(4, 0x4287f5, 1)
-    .drawRoundedRect(x, y, config.VIEWPORT_WIDTH, config.VIEWPORT_HEIGHT, 20);
-  app.stage.addChild(viewport);
-
   // Play button setup
   const button = new PIXI.Sprite(loader.resources['assets\\img\\btn_spin_normal.png'].texture);
   button.interactive = true;
+  button.buttonMode = true;
   button.width = button.height = config.BTN_RADIUS;
   button.position.set(
     config.SCREEN_WIDTH - config.BTN_RADIUS,
     config.SCREEN_HEIGHT - config.BTN_RADIUS
   );
-  button.cursor = 'pointer';
   button.addListener(
     'mouseover',
     () => (button.texture = loader.resources['assets\\img\\btn_spin_hover.png'].texture)
@@ -137,8 +142,8 @@ function setup() {
     () => (button.texture = loader.resources['assets\\img\\btn_spin_normal.png'].texture)
   );
   button.addListener('pointerdown', () => {
-    button.texture = loader.resources['assets\\img\\btn_spin_pressed.png'].texture
-    startPlay(allReels)
+    button.texture = loader.resources['assets\\img\\btn_spin_pressed.png'].texture;
+    startPlay(allReels);
   });
   app.stage.addChild(button);
 
@@ -149,15 +154,32 @@ function setup() {
   overlay.height = config.VIEWPORT_HEIGHT;
   app.stage.addChild(overlay);
 
-  const gameLoop = () => {};
-
   //Start the game loop
-  app.ticker.add(
-    () => {
-      state(allReels, state, config);
+  app.ticker.add(() => {
+    switch (gameStage) {
+      case 'playing':
+        play(allReels, state, config);
+        button.interactive = false;
+        button.buttonMode = false;
+        button.texture = loader.resources['assets\\img\\btn_spin_disable.png'].texture;
+        const isEnd = allReels.every(reel => reel.isStopped);
+
+        if (isEnd) {
+          gameStage = 'ending';
+        }
+        break;
+      case 'ending':
+        reelSpinSound.stop();
+        landingSound.play();
+        button.interactive = true;
+        button.buttonMode = true;
+        button.texture = loader.resources['assets\\img\\btn_spin_normal.png'].texture;
+        gameStage = 'end';
+        break;
+      case 'end':
+        break;
     }
-    // delta => gameLoop(delta)
-  );
+  });
 }
 
 function startPlay(allReels: Reel[]) {
@@ -166,5 +188,7 @@ function startPlay(allReels: Reel[]) {
     reel.startTime = Date.now();
     reel.position = Math.ceil(Math.random() * allReels.length);
     reel.stopTime = null;
+    reel.isStopped = false;
+    gameStage = 'playing';
   });
 }

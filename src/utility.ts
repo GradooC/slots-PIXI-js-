@@ -1,4 +1,4 @@
-import { ConfigType, config } from './config';
+import { ConfigType } from './types';
 import * as PIXI from 'pixi.js';
 
 /**
@@ -11,6 +11,9 @@ export const getDoubleDimensionArray = (outerLength: number, innerLength: number
     .fill(null)
     .map(() => new Array(innerLength).fill(null).map((el, index) => index));
 
+
+
+    
 /**
  * Returns sprite of the random symbol
  * @param imgPaths Array of the paths to all images
@@ -19,7 +22,6 @@ export const getDoubleDimensionArray = (outerLength: number, innerLength: number
  */
 export const getRandomSprite = (
   /*mask: PIXI.Graphics*/
-
   imgPaths: string[],
   loader: PIXI.Loader,
   config: ConfigType
@@ -46,6 +48,14 @@ export const getRandomSprite = (
   return sprite;
 };
 
+
+
+
+
+/**
+ * Producer rounded rectangle for debug purposes
+ * @param config Config object
+ */
 export const getRectangle = (config: ConfigType) => {
   const width = config.REEL_WIDTH;
   const height = config.SYMBOL_HEIGHT;

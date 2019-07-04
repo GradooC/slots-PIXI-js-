@@ -21,7 +21,7 @@ export const getDoubleDimensionArray = (outerLength: number, innerLength: number
  * @param config Config object
  */
 export const getRandomSprite = (
-  /*mask: PIXI.Graphics*/
+  mask: PIXI.Graphics,
   imgPaths: string[],
   loader: PIXI.Loader,
   config: ConfigType
@@ -37,7 +37,7 @@ export const getRandomSprite = (
   // Return sprite for random texture
   const sprite = new PIXI.Sprite(symbolsTextures[textureIndex]);
 
-  // sprite.mask = mask;
+  sprite.mask = mask;
 
   // Adjusting symbol size
   sprite.scale.x = sprite.scale.y = Math.min(

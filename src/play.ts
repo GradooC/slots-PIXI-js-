@@ -21,7 +21,7 @@ export default (allReels: Reel[], state: StateType, config: ConfigType) => {
       const now = Date.now();
       const phase = Math.min(1, (now - reel.stopTime) / 1000);
       const newPosition = interpolation(startY, startY + reel.position * config.SYMBOL_HEIGHT, easing(phase));
-      console.log(newPosition)
+
       // Change the blur filter depends on reel speed
       reel.filter.blurY = Math.abs(reel.previousPosition - newPosition);
 

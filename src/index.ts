@@ -97,26 +97,36 @@ function setup() {
         rectangle.position.set(rectangleX, rectangleY);
         //======================== DEBUG END ========================
 
-        const symbol = getRandomSprite(imgPaths, loader, config);
+        const symbol = getRandomSprite(viewport, imgPaths, loader, config);
         const symbolX = (config.REEL_WIDTH - symbol.width) / 2;
         const symbolY = symbolIndex * config.SYMBOL_HEIGHT;
         symbol.position.set(symbolX, symbolY);
 
+      
         // Add rectangle to symbols array
         reelContainer.addChild(symbol);
         symbols.push(symbol);
         //======================== DEBUG START ======================
-        reelContainer.addChild(rectangle);
-        rectangles.push(rectangle);
+        // reelContainer.addChild(rectangle); // Uncomment for debug 
+        // rectangles.push(rectangle);
         //======================== DEBUG END ========================
+
       });
+
+      // Set last textures the same as the first for smooth transition
+      symbols.forEach((sprite, index, thisArray) => {
+        if (index > symbols.length - 5) {
+          const sameSpriteIndex = index - (symbols.length - 5) - 1;
+          sprite.texture = symbols[sameSpriteIndex].texture;
+        }
+      })
 
       const blur = new PIXI.filters.BlurFilter();
       blur.blurX = 0;
       blur.blurY = 0;
       reelContainer.filters = [blur];
 
-      const spinTime = 1000 * (1 + 1 * reelIndex);
+      const spinTime = config.BASE_SPIN_DURATION * (1 + 1 * reelIndex);
       const newReel = new Reel(reelContainer, symbols, rectangles, blur, 0, spinTime);
 
       allReels.push(newReel);
@@ -147,11 +157,15 @@ function setup() {
   });
   app.stage.addChild(button);
 
-  // OverLay setup
+  // Overlay setup
   const overlay = new PIXI.Sprite(loader.resources['assets\\img\\slotOverlay.png'].texture);
-  overlay.position.set(config.MARGIN, config.MARGIN);
-  overlay.width = config.VIEWPORT_WIDTH;
-  overlay.height = config.VIEWPORT_HEIGHT;
+
+  // Manually overlay adjusting 
+  const overlayX = config.MARGIN - 25;
+  const overlayY = config.MARGIN - 33;
+  overlay.position.set(overlayX, overlayY);
+  overlay.width = config.VIEWPORT_WIDTH + 70;
+  overlay.height = config.VIEWPORT_HEIGHT + 50;
   app.stage.addChild(overlay);
 
   //Start the game loop
